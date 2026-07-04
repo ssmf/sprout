@@ -1,0 +1,74 @@
+---
+import type { DayCell } from '../lib/dates';
+import type { Entry } from '../lib/entries';
+import { snippet } from '../lib/dates';
+import RatingDots from './RatingDots.astro';
+
+/**
+ * Month calendar grid. Each in-month, non-future day links to its date page.
+ * Days with an entry show a short snippet and the rating dots. "Today" is
+ * outlined in red.
+ */
+interface Props {
+	cells: DayCell[];
+	entries: Map<string, Entry>;
+}
+
+const { cells, entries } = Astro.props;
+
+const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+---
+
+<div class="overflow-hidden rounded-card border border-line">
+	<!-- Weekday header row -->
+	<div class="grid grid-cols-7 border-b border-line bg-canvas">
+		{
+			weekdays.map((day) => (
+				<div class="py-2.5 text-center text-xs font-medium text-ink-soft">
+					{day}
+				</div>
+			))
+		}
+	</div>
+
+	<!-- Day grid: gap-px on a bg-line container creates hairline separators -->
+	<div class="grid grid-cols-7 gap-px bg-line">
+		{
+			cells.map((cell) => {
+				const entry = entries.get(cell.dateISO);
+				const linkable = cell.inMonth && !cell.isFuture;
+
+				return (
+					<a
+						href={linkable ? `/${cell.dateISO}` : undefined}
+						aria-disabled={!linkable}
+						class:list={[
+							'flex min-h-[92px] flex-col gap-1.5 bg-surface p-2.5 no-underline transition-colors',
+							!cell.inMonth && 'opacity-30',
+							cell.isFuture && 'opacity-30',
+							linkable && 'hover:bg-accent/5',
+							cell.isToday && 'ring-2 ring-inset ring-accent',
+						]}
+					>
+						<span
+							class:list={[
+								'text-xs font-medium',
+								cell.isToday ? 'text-accent' : 'text-ink-soft',
+							]}
+						>
+							{cell.day}
+						</span>
+						{entry && (
+							<>
+								<p class="line-clamp-2 text-xs leading-snug text-ink">
+									{snippet(entry.content, 50)}
+								</p>
+								<RatingDots rating={entry.rating} />
+							</>
+						)}
+					</a>
+				);
+			})
+		}
+	</div>
+</div>

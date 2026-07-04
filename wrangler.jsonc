@@ -1,0 +1,30 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"compatibility_date": "2026-07-04",
+	"compatibility_flags": [
+		"global_fetch_strictly_public"
+	],
+	"name": "sprout",
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS"
+	},
+	"observability": {
+		"enabled": true
+	},
+	// Cloudflare D1 binding — accessed via `import { env } from 'cloudflare:workers'` → env.DB
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "sprout-db",
+			"database_id": "d5e89029-4667-4544-815d-8151bd5a8ce7",
+			"migrations_dir": "../../migrations"
+		}
+	],
+	// Used to compute "today" in the user's local timezone so entries freeze at
+	// the right local midnight. Set to your IANA timezone.
+	"vars": {
+		"APP_TIMEZONE": "Europe/Warsaw"
+	}
+}

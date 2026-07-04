@@ -1,0 +1,69 @@
+---
+import { env } from 'cloudflare:workers';
+import Layout from '../layouts/Layout.astro';
+import EntryView from '../components/EntryView.astro';
+import JournalEditor from '../components/JournalEditor.vue';
+import { isValidDateISO, todayISO, formatLongDate } from '../lib/dates';
+import { getEntryByDate } from '../lib/entries';
+
+/**
+ * Dynamic date route /YYYY-MM-DD
+ *
+ * - Today → interactive Vue editor (write / upsert)
+ * - Past day with entry → read-only view
+ * - Past day without entry → "No entry for this day"
+ * - Future day or invalid date → redirect home
+ */
+
+const timezone = env.APP_TIMEZONE ?? 'UTC';
+const db = env.DB;
+
+const { date } = Astro.params;
+
+// Guard: invalid date format
+if (!date || !isValidDateISO(date)) {
+	return Astro.redirect('/');
+}
+
+const todayStr = todayISO(timezone);
+const isFuture = date > todayStr;
+const isToday = date === todayStr;
+
+// Guard: future dates aren't writable or readable
+if (isFuture) {
+	return Astro.redirect('/');
+}
+
+const entry = await getEntryByDate(db, date);
+---
+
+<Layout title={isToday ? 'Today · sprout' : `${date} · sprout`}>
+	<div class="space-y-8">
+		<a
+			href="/"
+			class="text-sm text-ink-soft transition-colors hover:text-accent"
+		>
+			← Back to calendar
+		</a>
+
+		{
+			isToday ? (
+				<JournalEditor
+					client:load
+					date={date}
+					dateLabel={formatLongDate(date)}
+					initialEntry={entry}
+				/>
+			) : entry ? (
+				<EntryView entry={entry} />
+			) : (
+				<div class="space-y-2">
+					<h1 class="text-xl font-semibold text-ink">
+						{formatLongDate(date)}
+					</h1>
+					<p class="text-ink-soft">No entry for this day.</p>
+				</div>
+			)
+		}
+	</div>
+</Layout>

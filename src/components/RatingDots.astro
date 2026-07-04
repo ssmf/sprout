@@ -1,0 +1,24 @@
+---
+/**
+ * Static, read-only display of a 1–5 rating as five small dots.
+ * Filled dots use the red accent; empty dots use the hairline color.
+ */
+interface Props {
+	rating: number;
+}
+
+const { rating } = Astro.props;
+---
+
+<div class="flex gap-1.5">
+	{
+		Array.from({ length: 5 }, (_, i) => (
+			<span
+				class:list={[
+					'h-1.5 w-1.5 rounded-full',
+					i < rating ? 'bg-accent' : 'bg-line',
+				]}
+			/>
+		))
+	}
+</div>
