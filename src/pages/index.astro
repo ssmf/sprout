@@ -1,26 +1,28 @@
 ---
-import { env } from 'cloudflare:workers';
-import Layout from '../layouts/Layout.astro';
-import Calendar from '../components/Calendar.astro';
+import { env } from "cloudflare:workers";
+import Layout from "../layouts/Layout.astro";
+import Calendar from "../components/Calendar.astro";
 import {
-	buildMonthGrid,
-	parseMonthParam,
-	prevMonth,
-	nextMonth,
-	monthKey,
-	formatMonthLabel,
-	todayISO,
-	currentMonth,
-} from '../lib/dates';
-import { listEntriesForMonth } from '../lib/entries';
+    buildMonthGrid,
+    parseMonthParam,
+    prevMonth,
+    nextMonth,
+    monthKey,
+    formatMonthLabel,
+    todayISO,
+    currentMonth,
+} from "../lib/dates";
+import { listEntriesForMonth } from "../lib/entries";
 
-const timezone = env.APP_TIMEZONE ?? 'UTC';
+const timezone = env.APP_TIMEZONE ?? "UTC";
 const db = env.DB;
 
 const todayStr = todayISO(timezone);
 
 // Determine which month to display (?month=YYYY-MM, defaulting to current)
-const requested = parseMonthParam(Astro.url.searchParams.get('month') ?? undefined);
+const requested = parseMonthParam(
+    Astro.url.searchParams.get("month") ?? undefined,
+);
 const { year, month } = requested ?? currentMonth(timezone);
 
 const cells = buildMonthGrid(year, month, todayStr);
@@ -31,31 +33,31 @@ const next = nextMonth(year, month);
 ---
 
 <Layout title="sprout">
-	<div class="space-y-5">
-		<!-- Month navigation -->
-		<div class="flex items-center justify-between">
-			<a
-				href={`/?month=${monthKey(prev.year, prev.month)}`}
-				class="flex h-9 w-9 items-center justify-center rounded-lg text-ink-soft transition-colors hover:bg-surface hover:text-accent"
-				aria-label="Previous month"
-			>
-				‹
-			</a>
-			<h1 class="text-lg font-semibold text-ink">{formatMonthLabel(year, month)}</h1>
-			<a
-				href={`/?month=${monthKey(next.year, next.month)}`}
-				class="flex h-9 w-9 items-center justify-center rounded-lg text-ink-soft transition-colors hover:bg-surface hover:text-accent"
-				aria-label="Next month"
-			>
-				›
-			</a>
-		</div>
+    <div class="space-y-5">
+        <!-- Month navigation -->
+        <div class="flex items-center justify-between">
+            <a
+                href={`/?month=${monthKey(prev.year, prev.month)}`}
+                class="flex h-9 w-9 items-center justify-center rounded-lg text-ink-soft transition-colors hover:bg-surface hover:text-accent"
+                aria-label="Previous month"
+            >
+                ‹
+            </a>
+            <h1 class="text-lg font-semibold text-ink">
+                {formatMonthLabel(year, month)}
+            </h1>
+            <a
+                href={`/?month=${monthKey(next.year, next.month)}`}
+                class="flex h-9 w-9 items-center justify-center rounded-lg text-ink-soft transition-colors hover:bg-surface hover:text-accent"
+                aria-label="Next month"
+            >
+                ›
+            </a>
+        </div>
 
-		<Calendar cells={cells} entries={entries} />
+        <Calendar cells={cells} entries={entries} />
 
-		<!-- Subtle hint -->
-		<p class="pt-2 text-center text-xs text-ink-soft">
-			Click a day to read its entry · Click today to write
-		</p>
-	</div>
+        <!-- Subtle hint -->
+        <p class="pt-2 text-center text-xs text-ink-soft">Stay Focused ♥</p>
+    </div>
 </Layout>

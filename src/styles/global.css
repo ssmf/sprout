@@ -27,11 +27,20 @@
     --color-line: #ececec; /* hairline borders */
     --color-accent: #ff0c0c; /* the one red */
 
-    --radius-card: 14px;
+    --radius-card: 0.875rem; /* 14px @ 100% — scales with the root font-size */
 
     --font-sans:
         "Red Hat Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
         "Cascadia Code", "Roboto Mono", monospace;
+}
+
+/*
+ * Global type scale. Everything in the UI is rem-based, so bumping the root
+ * font-size scales text, spacing, and radii in lockstep. 112.5% = one notch up
+ * (16px → 18px root). Tune this single value to rescale the whole app.
+ */
+html {
+    font-size: 112.5%;
 }
 
 /* Base body styling applied on top of Tailwind preflight. */

@@ -1,31 +1,28 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
-	title?: string;
+    title?: string;
 }
 
-const { title = 'sprout' } = Astro.props;
+const { title = "sprout" } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
-	</head>
-	<body class="min-h-screen bg-canvas font-sans text-ink antialiased">
-		<header class="mx-auto max-w-2xl px-6 pt-10 pb-8">
-			<a href="/" class="text-lg font-semibold tracking-tight text-ink no-underline">
-				sprout
-			</a>
-		</header>
-		<main class="mx-auto max-w-2xl px-6 pb-20">
-			<slot />
-		</main>
-	</body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+        <ClientRouter />
+    </head>
+    <body class="min-h-screen bg-canvas font-sans text-ink antialiased">
+        <main class="mx-auto max-w-2xl px-6 pb-20 pt-10">
+            <slot />
+        </main>
+    </body>
 </html>
