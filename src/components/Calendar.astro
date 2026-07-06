@@ -66,9 +66,6 @@ const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
                         </span>
                         {entry && (
                             <>
-                                <p class="line-clamp-2 text-xs leading-snug text-ink">
-                                    {snippet(entry.content, 50)}
-                                </p>
                                 <RatingDots rating={entry.rating} />
                             </>
                         )}
