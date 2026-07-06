@@ -3,16 +3,20 @@ import { ref, computed } from "vue";
 import type { Entry } from "../lib/entries";
 
 /**
- * Interactive editor for today's journal entry — a Vue island hydrated
- * with `client:load`. Shows a 1–5 rating selector and a textarea, then
- * POSTs to /api/entries on save. Today's entry may be saved repeatedly
- * (upsert) until the day rolls over, at which point the server rejects
- * further writes.
+ * Interactive journal editor — a Vue island hydrated with `client:load`.
+ * Shows a 1–5 rating selector and a textarea, then POSTs to /api/entries
+ * on save. Used for today's entry (direct) and, after confirmation, for
+ * past entries (editing an existing entry or backfilling an empty day).
+ * Emits a `saved` event with the persisted entry so parents can react.
  */
 const props = defineProps<{
     date: string;
     dateLabel: string;
     initialEntry?: Entry | null;
+}>();
+
+const emit = defineEmits<{
+    (e: "saved", payload: { date: string; content: string; rating: number }): void;
 }>();
 
 const content = ref(props.initialEntry?.content ?? "");
@@ -50,6 +54,11 @@ async function save() {
         }
 
         saved.value = true;
+        emit("saved", {
+            date: props.date,
+            content: content.value.trim(),
+            rating: rating.value,
+        });
         if (savedTimer) clearTimeout(savedTimer);
         savedTimer = setTimeout(() => {
             saved.value = false;

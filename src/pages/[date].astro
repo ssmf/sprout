@@ -1,7 +1,7 @@
 ---
 import { env } from 'cloudflare:workers';
 import Layout from '../layouts/Layout.astro';
-import EntryView from '../components/EntryView.astro';
+import PastEntry from '../components/PastEntry.vue';
 import JournalEditor from '../components/JournalEditor.vue';
 import { isValidDateISO, todayISO, formatLongDate } from '../lib/dates';
 import { getEntryByDate } from '../lib/entries';
@@ -10,8 +10,9 @@ import { getEntryByDate } from '../lib/entries';
  * Dynamic date route /YYYY-MM-DD
  *
  * - Today → interactive Vue editor (write / upsert)
- * - Past day with entry → read-only view
- * - Past day without entry → "No entry for this day"
+ * - Past day → PastEntry island: read-only view (or "No entry") with an
+ *   edit / add button that opens a confirmation modal before switching to
+ *   the editor. Both filled and empty past days are editable on confirm.
  * - Future day or invalid date → redirect home
  */
 
@@ -54,15 +55,13 @@ const entry = await getEntryByDate(db, date);
 					dateLabel={formatLongDate(date)}
 					initialEntry={entry}
 				/>
-			) : entry ? (
-				<EntryView entry={entry} />
 			) : (
-				<div class="space-y-2">
-					<h1 class="text-xl font-semibold text-ink">
-						{formatLongDate(date)}
-					</h1>
-					<p class="text-ink-soft">No entry for this day.</p>
-				</div>
+				<PastEntry
+					client:load
+					date={date}
+					dateLabel={formatLongDate(date)}
+					entry={entry}
+				/>
 			)
 		}
 	</div>
