@@ -1,8 +1,9 @@
 ---
 import type { DayCell } from "../lib/dates";
 import type { Entry } from "../lib/entries";
-import { snippet } from "../lib/dates";
+import { snippet, formatLongDate } from "../lib/dates";
 import RatingDots from "./RatingDots.astro";
+import DayPreview from "./DayPreview.vue";
 
 /**
  * Month calendar grid. Each in-month, non-future day links to its date page.
@@ -16,10 +17,27 @@ interface Props {
 
 const { cells, entries } = Astro.props;
 
+// Build a JSON-serializable record of entries for the client-side hover
+// preview island. Only entries that exist are included (all in-month,
+// non-future). Content is generously capped; the note's line-clamp handles
+// visual truncation.
+const previewEntries: Record<
+    string,
+    { date: string; dateLabel: string; content: string; rating: number }
+> = {};
+for (const [date, e] of entries) {
+    previewEntries[date] = {
+        date,
+        dateLabel: formatLongDate(date),
+        content: snippet(e.content, 1000),
+        rating: e.rating,
+    };
+}
+
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 ---
 
-<div class="overflow-hidden border border-line">
+<div class="overflow-hidden border border-line" data-calendar>
     <!-- Weekday header row -->
     <div class="grid grid-cols-7 border-b border-line bg-canvas">
         {
@@ -46,6 +64,7 @@ const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
                     <a
                         href={linkable ? `/${cell.dateISO}` : undefined}
                         aria-disabled={!linkable}
+                        data-date={cell.dateISO}
                         class:list={[
                             "flex min-h-[5.75rem] flex-col gap-1.5 border-line bg-surface p-2.5 no-underline transition-colors",
                             !isLastCol && "border-r",
@@ -75,3 +94,6 @@ const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         }
     </div>
 </div>
+
+<!-- Hover note for days with an entry (client-only, fixed-positioned). -->
+<DayPreview client:load entries={previewEntries} />
