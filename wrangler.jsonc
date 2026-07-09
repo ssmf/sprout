@@ -19,7 +19,7 @@
 			"binding": "DB",
 			"database_name": "sprout-db",
 			"database_id": "d5e89029-4667-4544-815d-8151bd5a8ce7",
-			"migrations_dir": "../../migrations"
+			"migrations_dir": "./migrations"
 		}
 	],
 	// Used to compute "today" in the user's local timezone so entries freeze at

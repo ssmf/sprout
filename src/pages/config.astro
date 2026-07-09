@@ -1,0 +1,40 @@
+---
+import { env } from 'cloudflare:workers';
+import Layout from '../layouts/Layout.astro';
+import DeadlineConfig from '../components/DeadlineConfig.vue';
+import { isValidDateISO } from '../lib/dates';
+import { getSetting } from '../lib/settings';
+
+/**
+ * /config — primary configuration page for site-wide settings.
+ *
+ * Currently hosts a single panel: the homepage countdown "Deadline". Reads the
+ * current value server-side and hands it to the DeadlineConfig island, which
+ * handles picker interaction and persistence via /api/settings.
+ */
+const timezone = env.APP_TIMEZONE ?? 'UTC';
+const db = env.DB;
+
+const rawDeadline = await getSetting(db, 'deadline');
+const deadline =
+    rawDeadline && isValidDateISO(rawDeadline) ? rawDeadline : null;
+---
+
+<Layout title="config · sprout">
+	<div class="space-y-8">
+		<a
+			href="/"
+			class="text-sm text-ink-soft transition-colors hover:text-accent"
+		>
+			← Back to calendar
+		</a>
+
+		<h1 class="text-xl font-semibold text-ink">Settings</h1>
+
+		<DeadlineConfig
+			client:load
+			initialDeadline={deadline}
+			timezone={timezone}
+		/>
+	</div>
+</Layout>

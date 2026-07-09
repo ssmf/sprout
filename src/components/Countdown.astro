@@ -1,0 +1,24 @@
+---
+import { todayISO, formatCountdown } from "../lib/dates";
+
+/**
+ * Server-rendered countdown to the configured deadline. Renders a single
+ * centered, muted line ("X days left" / "<1 days left" / "Goal reached ♥")
+ * driven by the `deadline` setting. Renders nothing when no deadline is set.
+ */
+interface Props {
+    deadline: string | null;
+    timezone?: string;
+}
+
+const { deadline, timezone = "UTC" } = Astro.props as Props;
+const text = formatCountdown(deadline, todayISO(timezone));
+---
+
+{
+    text && (
+        <p class="text-center text-sm text-ink-soft">
+            {text}
+        </p>
+    )
+}

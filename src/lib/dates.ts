@@ -136,3 +136,28 @@ export function currentMonth(timezone: string = 'UTC'): { year: number; month: n
   const [year, month] = todayISO(timezone).split('-').map(Number);
   return { year, month: month - 1 };
 }
+
+/**
+ * Formats the remaining time until a deadline as "X days left" — always in
+ * days, never months or hours. On the deadline day returns "<1 days left";
+ * once the deadline passes returns "Goal reached ♥". Both `deadlineISO` and
+ * `todayStr` are 'YYYY-MM-DD' strings; the comparison is date-only (UTC
+ * midnight), so the result is independent of the time of day.
+ *
+ * Returns null when `deadlineISO` is empty so callers can render nothing.
+ */
+export function formatCountdown(
+  deadlineISO: string | null,
+  todayStr: string,
+): string | null {
+  if (!deadlineISO) return null;
+  const [dy, dm, dd] = deadlineISO.split('-').map(Number);
+  const [ty, tm, td] = todayStr.split('-').map(Number);
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const daysLeft = Math.floor(
+    (Date.UTC(dy, dm - 1, dd) - Date.UTC(ty, tm - 1, td)) / msPerDay,
+  );
+  if (daysLeft < 0) return 'Goal reached ♥';
+  if (daysLeft === 0) return '<1 days left';
+  return `${daysLeft} days left`;
+}

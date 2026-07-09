@@ -11,8 +11,11 @@ import {
     formatMonthLabel,
     todayISO,
     currentMonth,
+    isValidDateISO,
 } from "../lib/dates";
 import { listEntriesForMonth } from "../lib/entries";
+import { getSetting } from "../lib/settings";
+import Countdown from "../components/Countdown.astro";
 
 const timezone = env.APP_TIMEZONE ?? "UTC";
 const db = env.DB;
@@ -30,10 +33,18 @@ const entries = await listEntriesForMonth(db, year, month);
 
 const prev = prevMonth(year, month);
 const next = nextMonth(year, month);
+
+// Homepage countdown deadline (from the settings table). Validated in case
+// of legacy/corrupt data; invalid values are treated as "not set".
+const rawDeadline = await getSetting(db, "deadline");
+const deadline = rawDeadline && isValidDateISO(rawDeadline) ? rawDeadline : null;
 ---
 
 <Layout title="sprout">
     <div class="space-y-5">
+        <!-- Countdown to the configured deadline (hidden when none set) -->
+        <Countdown deadline={deadline} timezone={timezone} />
+
         <!-- Month navigation -->
         <div class="flex items-center justify-between">
             <a
@@ -59,5 +70,11 @@ const next = nextMonth(year, month);
 
         <!-- Subtle hint -->
         <p class="pt-2 text-center text-xs text-ink-soft">Stay Focused ♥</p>
+        <a
+            href="/config"
+            class="block text-center text-xs text-ink-soft transition-colors hover:text-accent"
+        >
+            config
+        </a>
     </div>
 </Layout>
